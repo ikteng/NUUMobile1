@@ -39,25 +39,79 @@ def get_sheets(file):
         return jsonify({"sheets": sheet_names})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-    
+
 @dashboard_bp.route("/get_sheets/<file>/<sheet>", methods=["GET"])
 def get_sheets_data(file, sheet):
     filepath = os.path.join(UPLOAD_FOLDER, file)
-    n_rows = int(request.args.get("rows", 5))
     if not os.path.exists(filepath):
         return jsonify({"error": "File not found"}), 404
 
     try:
+        # Get pagination parameters from query
+        page = int(request.args.get("page", 1))
+        page_size = int(request.args.get("page_size", 50))  # default 50 rows per page
+
         xl = pd.ExcelFile(filepath)
         df = xl.parse(sheet)
-
-        # Replace NaN / NaT with empty string for JSON safety
         df = df.fillna("")
 
-        preview = df.head(n_rows).to_dict(orient="records")  # convert to JSON
+        total_rows = len(df)
+        start = (page - 1) * page_size
+        end = start + page_size
+        preview = df.iloc[start:end].to_dict(orient="records")  # only current page
         columns = df.columns.tolist()
         xl.close()
-        return jsonify({"columns": columns, "preview": preview})
+
+        return jsonify({
+            "columns": columns,
+            "preview": preview,
+            "total_rows": total_rows,
+            "page": page,
+            "page_size": page_size,
+            "total_pages": (total_rows + page_size - 1) // page_size
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@dashboard_bp.route("/get_sheets/<file>/<sheet>/search", methods=["GET"])
+def get_sheets_data_by_search(file, sheet):
+    print("Searching...")
+    filepath = os.path.join(UPLOAD_FOLDER, file)
+    if not os.path.exists(filepath):
+        return jsonify({"error": "File not found"}), 404
+
+    try:
+        # Get pagination parameters from query
+        searchTerm = request.args.get("search", "").lower()  # from query string
+        page = int(request.args.get("page", 1))
+        page_size = int(request.args.get("page_size", 50))  # default 50 rows per page
+
+        xl = pd.ExcelFile(filepath)
+        df = xl.parse(sheet)
+        df = df.fillna("")  # replace NaN / NaT with empty string
+
+        # Filter by searchTerm if provided
+        if searchTerm:
+            # Check if any column contains the searchTerm (case-insensitive)
+            mask = df.apply(lambda row: row.astype(str).str.lower().str.contains(searchTerm).any(), axis=1)
+            df = df[mask]
+
+        total_rows = len(df)
+        start = (page - 1) * page_size
+        end = start + page_size
+        preview = df.iloc[start:end].to_dict(orient="records")  # only current page
+        columns = df.columns.tolist()
+        xl.close()
+
+        return jsonify({
+            "columns": columns,
+            "preview": preview,
+            "total_rows": total_rows,
+            "page": page,
+            "page_size": page_size,
+            "total_pages": (total_rows + page_size - 1) // page_size
+        })
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

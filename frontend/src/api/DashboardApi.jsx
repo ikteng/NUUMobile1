@@ -30,9 +30,16 @@ export const DashboardApi = {
     },
 
     // Get data from a specific sheet of a specific file
-    getSheetData: async (file, sheet, rows = 3) => {
+    getSheetData: async (file, sheet, page = 1, pageSize = 20) => {
         const response = await axios.get(`${API_URL}/get_sheets/${file}/${sheet}`, {
-            params: { rows },
+            params: { page, page_size: pageSize }
+        });
+        return response.data;
+    },
+
+    getSheetDataBySearch: async (file, sheet, searchTerm, page = 1, pageSize = 20) => {
+        const response = await axios.get(`${API_URL}/get_sheets/${file}/${sheet}/search`, {
+            params: { search: searchTerm, page, page_size: pageSize }
         });
         return response.data;
     },
