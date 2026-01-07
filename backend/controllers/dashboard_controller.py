@@ -59,7 +59,7 @@ def get_sheets_data(file, sheet):
 
         xl = pd.ExcelFile(filepath)
         df = xl.parse(sheet)
-        df = df.fillna("")
+        df = df.fillna("").astype(str)
 
         paged_df, total_rows = paginate(df, page, page_size)
         preview = paged_df.to_dict(orient="records")
@@ -75,6 +75,8 @@ def get_sheets_data(file, sheet):
             "total_pages": (total_rows + page_size - 1) // page_size
         })
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return jsonify({"error": str(e)}), 500
     
 @dashboard_bp.route("/get_sheets_data/<file>/<sheet>/search", methods=["GET"])
