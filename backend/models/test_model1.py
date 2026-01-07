@@ -2,7 +2,7 @@ import os
 import pandas as pd
 import numpy as np
 from sklearn.metrics import confusion_matrix
-from river import preprocessing, linear_model, metrics
+from river import metrics
 import joblib
 
 # ------------------------------
@@ -51,27 +51,32 @@ def preprocess_sheet(df):
     return df
 
 # ------------------------------
-# Load original sheets
+# Load model and preprocessors
 # ------------------------------
-uw_path = "backend/userfiles/UW_Churn_Pred_Data.xls"
-sheets_with_churn = ["N10", "B30 Pro"]
-dfs = {s: preprocess_sheet(pd.read_excel(uw_path, sheet_name=s)) for s in sheets_with_churn}
-train_df = pd.concat(dfs.values(), ignore_index=True)
+model_dir = os.path.join(os.getcwd(), "backend", "models")
+model = joblib.load(os.path.join(model_dir, "churn_model_river.joblib"))
+numeric_pipeline = joblib.load(os.path.join(model_dir, "numeric_pipeline_river.joblib"))
+categorical_pipeline = joblib.load(os.path.join(model_dir, "categorical_pipeline_river.joblib"))
 
 # ------------------------------
-# Features
+# Load sheets to predict
 # ------------------------------
-numeric_features = train_df.select_dtypes(include=np.number).columns.tolist()
-categorical_features = train_df.select_dtypes(include='object').columns.tolist()
+uw_path = "backend/userfiles/UW_Churn_Pred_Data.xls"
+sheets_with_churn = ["N10", "B30 Pro", "Data Before Feb 13"]  # Include all sheets you want
+dfs = {s: preprocess_sheet(pd.read_excel(uw_path, sheet_name=s)) for s in sheets_with_churn}
+
+# ------------------------------
+# Identify numeric and categorical features
+# ------------------------------
+sample_df = pd.concat(dfs.values(), ignore_index=True)
+numeric_features = sample_df.select_dtypes(include=np.number).columns.tolist()
+categorical_features = sample_df.select_dtypes(include='object').columns.tolist()
 if target in numeric_features: numeric_features.remove(target)
 if target in categorical_features: categorical_features.remove(target)
 
 # ------------------------------
-# River preprocessing
+# Preprocess a row for prediction
 # ------------------------------
-numeric_pipeline = preprocessing.StandardScaler()
-categorical_pipeline = preprocessing.OneHotEncoder()
-
 def preprocess_row(row):
     row_dict = row.to_dict()
     x_num = {k: row_dict[k] for k in numeric_features if k in row_dict}
@@ -81,59 +86,7 @@ def preprocess_row(row):
     return {**x_num, **x_cat}
 
 # ------------------------------
-# River model
-# ------------------------------
-model = linear_model.LogisticRegression()
-metric = metrics.Accuracy()
-
-# ------------------------------
-# Train on original sheets
-# ------------------------------
-y_true_train = []
-y_pred_train = []
-
-for _, row in train_df.iterrows():
-    x = preprocess_row(row)
-    y = row[target]
-    y_pred = model.predict_one(x)
-
-    y_true_train.append(y)
-    y_pred_train.append(y_pred)
-
-    if y_pred is not None:
-        metric.update(y, y_pred)
-    model.learn_one(x, y)
-
-cm_train = confusion_matrix(y_true_train, y_pred_train)
-print(f"Confusion Matrix for training data:\n{cm_train}")
-print(f"Initial training accuracy: {metric.get():.4f}")
-
-# ------------------------------
-# Incremental update on future sheet
-# ------------------------------
-df_future = preprocess_sheet(pd.read_excel(uw_path, sheet_name='Data Before Feb 13'))
-metric_future = metrics.Accuracy()
-y_true_future = []
-y_pred_future = []
-
-for _, row in df_future.iterrows():
-    x = preprocess_row(row)
-    y = row[target]
-    y_pred = model.predict_one(x)
-
-    y_true_future.append(y)
-    y_pred_future.append(y_pred)
-
-    if y_pred is not None:
-        metric_future.update(y, y_pred)
-    model.learn_one(x, y)
-
-cm_future = confusion_matrix(y_true_future, y_pred_future)
-print(f"\nConfusion Matrix for future data:\n{cm_future}")
-print(f"Accuracy on df_future after incremental updates: {metric_future.get():.4f}")
-
-# ------------------------------
-# Re-predict original sheets after df_future update
+# Predict function for a dataframe
 # ------------------------------
 def predict_df(df, model):
     y_proba = []
@@ -150,30 +103,20 @@ def predict_df(df, model):
 
     return y_proba, y_pred
 
-for sheet_name, df_orig in dfs.items():
-    df = df_orig.copy()
+# ------------------------------
+# Predict all sheets
+# ------------------------------
+for sheet_name, df in dfs.items():
     y_proba, y_pred = predict_df(df, model)
-
     df['Churn Prediction Probability'] = y_proba
     df['Churn Prediction'] = y_pred
 
+    # Evaluate
     cm = confusion_matrix(df[target], y_pred)
     acc = metrics.Accuracy()
     for true, pred in zip(df[target], y_pred):
         acc.update(true, pred)
 
-    print(f"\nSheet: {sheet_name} after df_future update")
+    print(f"\nSheet: {sheet_name}")
     print(f"Confusion Matrix:\n{cm}")
     print(f"Accuracy: {acc.get():.4f}")
-
-# ------------------------------
-# Save model & preprocessors
-# ------------------------------
-model_dir = os.path.join(os.getcwd(), "backend", "models")
-os.makedirs(model_dir, exist_ok=True)
-
-joblib.dump(model, os.path.join(model_dir, "churn_model_river.joblib"))
-joblib.dump(numeric_pipeline, os.path.join(model_dir, "numeric_pipeline_river.joblib"))
-joblib.dump(categorical_pipeline, os.path.join(model_dir, "categorical_pipeline_river.joblib"))
-
-print("\nModel and preprocessors saved!")
