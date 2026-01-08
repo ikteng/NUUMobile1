@@ -6,7 +6,7 @@ import Dashboard from "./pages/Dashboard";
 import Predictions from "./pages/Predictions";
 import './App.css';
 
-function App() {
+export default function App() {
   return (
     <Router>
       <Navbar />
@@ -20,5 +20,3 @@ function App() {
     </Router>
   );
 }
-
-export default App;

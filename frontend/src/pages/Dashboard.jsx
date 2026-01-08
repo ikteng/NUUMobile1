@@ -91,7 +91,10 @@ export default function Dashboard() {
                         />
                     </>
                 ) : (
-                    <p>Select a file and sheet</p>
+                    <>
+                        <h1>Dashboard</h1>
+                        <p>Select a file and sheet</p>
+                    </>
                 )}
             </div>
         </div>

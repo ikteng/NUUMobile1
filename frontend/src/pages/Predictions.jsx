@@ -85,7 +85,10 @@ export default function Predictions() {
                         selectedSheet={selectedSheet}
                     />
                 ) : (
+                    <>
+                    <h1>Predictions</h1>
                     <p>Select a file and sheet to view predictions</p>
+                    </>
                 )}
             </div>
         </div>

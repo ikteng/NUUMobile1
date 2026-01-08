@@ -1,16 +1,12 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import './Navbar.css';
 
-const Navbar = () => {
-  const navigate = useNavigate();
+export default function Navbar() {
+  const location = useLocation(); // Get the current location
 
-  // Handle "Predictions" click to reload the page
-  const handlePredictionsClick = (e) => {
-    e.preventDefault(); // Prevent the default link behavior
-    navigate('/predictions');
-    window.location.reload(); // Reload the page
-  };
+  // Function to check if the current link is active
+  const isActive = (path) => location.pathname === path;
 
   return (
     <nav className="navbar">
@@ -18,13 +14,17 @@ const Navbar = () => {
         <img src="/NuuMobileLogo.png" alt="Logo" className="logo" />
       </div>
       <div className="navbar-items">
-        <Link to="/upload" className="nav-item">Upload</Link>
-        <Link to="/dashboard" className="nav-item">Dashboard</Link>
-        <Link to="/predictions" className="nav-item" onClick={handlePredictionsClick}>Predictions</Link>
+        <Link to="/upload" className={`nav-item ${isActive('/upload') ? 'active' : ''}`}>
+          Upload
+        </Link>
+        <Link to="/dashboard" className={`nav-item ${isActive('/dashboard') ? 'active' : ''}`}>
+          Dashboard
+        </Link>
+        <Link to="/predictions" className={`nav-item ${isActive('/predictions') ? 'active' : ''}`}>
+          Predictions
+        </Link>
       </div>
       <div className="navbar-right"></div>
     </nav>
   );
 };
-
-export default Navbar;

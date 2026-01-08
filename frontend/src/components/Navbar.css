@@ -29,6 +29,11 @@
   color: var(--color-primary);
 }
 
+.nav-item.active {
+  color: var(--color-primary);
+  font-weight: bold;
+}
+
 .navbar-right {
   width: 80px;
 }
