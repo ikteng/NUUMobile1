@@ -28,7 +28,7 @@
 }
 
 .preview-search-bar {
-  padding: 5px 30px 5px 10px; /* leave space for the X */
+  padding: 5px 30px 5px 10px;
   border-radius: 6px;
   border: 1px solid #ccc;
   width: 100%;
