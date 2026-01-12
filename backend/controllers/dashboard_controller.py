@@ -53,57 +53,27 @@ def get_sheets_data(file, sheet):
         return jsonify({"error": "File not found"}), 404
 
     try:
-        # Get pagination parameters from query
+        # Get pagination and optional search
         page = int(request.args.get("page", 1))
-        page_size = int(request.args.get("page_size", 50))  # default 50 rows per page
+        page_size = int(request.args.get("page_size", 50))
+        search_term = request.args.get("search", "").lower()
 
         xl = pd.ExcelFile(filepath)
         df = xl.parse(sheet)
-        df = df.fillna("")
-
-        paged_df, total_rows = paginate(df, page, page_size)
-        preview = paged_df.to_dict(orient="records")
-        columns = df.columns.tolist()
         xl.close()
 
-        return jsonify({
-            "columns": columns,
-            "preview": preview,
-            "total_rows": total_rows,
-            "page": page,
-            "page_size": page_size,
-            "total_pages": (total_rows + page_size - 1) // page_size
-        })
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-    
-@dashboard_bp.route("/get_sheets_data/<file>/<sheet>/search", methods=["GET"])
-def get_sheets_data_by_search(file, sheet):
-    filepath = os.path.join(UPLOAD_FOLDER, file)
-    if not os.path.exists(filepath):
-        return jsonify({"error": "File not found"}), 404
+        # Replace NaN / NaT with empty string and convert everything to string
+        df = df.fillna("").applymap(lambda x: str(x))
 
-    try:
-        # Get pagination parameters from query
-        searchTerm = request.args.get("search", "").lower()  # from query string
-        page = int(request.args.get("page", 1))
-        page_size = int(request.args.get("page_size", 50))  # default 50 rows per page
-
-        xl = pd.ExcelFile(filepath)
-        df = xl.parse(sheet)
-        df = df.fillna("")  # replace NaN / NaT with empty string
-
-        # Filter by searchTerm if provided
-        if searchTerm:
-            # Check if any column contains the searchTerm (case-insensitive)
-            mask = df.apply(lambda row: row.astype(str).str.lower().str.contains(searchTerm).any(), axis=1)
+        # Apply search if provided
+        if search_term:
+            mask = df.apply(lambda row: row.str.lower().str.contains(search_term).any(), axis=1)
             df = df[mask]
 
+        # Pagination
         paged_df, total_rows = paginate(df, page, page_size)
         preview = paged_df.to_dict(orient="records")
-
         columns = df.columns.tolist()
-        xl.close()
 
         return jsonify({
             "columns": columns,
@@ -115,6 +85,8 @@ def get_sheets_data_by_search(file, sheet):
         })
 
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
 MISSING_LABEL = "Missing"
@@ -130,6 +102,8 @@ def get_all_columns(file, sheet):
         df = pd.read_excel(filepath, sheet_name=sheet)
         return jsonify({"columns": df.columns.tolist()})
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
 def extract_json(value):
@@ -221,4 +195,6 @@ def get_column_data(file, sheet, column):
         return {"frequency": numeric_freq}
 
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return {"error": str(e)}

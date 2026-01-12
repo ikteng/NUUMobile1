@@ -90,34 +90,6 @@ def get_predictions(file, sheet):
 
     page = int(request.args.get("page", 1))
     page_size = int(request.args.get("page_size", 20))
-
-    try:
-        df = pd.read_excel(filepath, sheet_name=sheet)
-        df_orig = df.copy()
-        df = preprocess_sheet(df)
-        response_df = predict_df(df, df_orig)
-
-        paged_df, total = paginate(response_df, page, page_size)
-        total_pages = (total + page_size - 1) // page_size
-
-        return jsonify({
-            "preview": paged_df.to_dict(orient="records"),
-            "columns": list(response_df.columns),
-            "total_pages": total_pages
-        }), 200
-    except Exception as e:
-        import traceback
-        traceback.print_exc()
-        return jsonify({"error": str(e)}), 500
-
-@predictions_bp.route("/predict_churn/<file>/<sheet>/search", methods=["GET"])
-def get_predictions_search(file, sheet):
-    filepath = os.path.join(UPLOAD_FOLDER, file)
-    if not os.path.exists(filepath):
-        return jsonify({"error": "File not found"}), 404
-
-    page = int(request.args.get("page", 1))
-    page_size = int(request.args.get("page_size", 20))
     search_term = request.args.get("search", "").lower()
 
     try:
@@ -139,6 +111,8 @@ def get_predictions_search(file, sheet):
             "total_pages": total_pages
         }), 200
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
 @predictions_bp.route("/download_predictions/<file>/<sheet>", methods=["GET"])
