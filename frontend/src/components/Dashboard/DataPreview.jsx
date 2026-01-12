@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { DashboardApi } from "../../api/DashboardApi";
 import SearchIcon from '@mui/icons-material/Search';
-import CircularProgress from '@mui/material/CircularProgress';
 import "./DataPreview.css";
+import "../SearchBar.css";
 
 export default function DataPreview({ selectedFile, selectedSheet }) {
   const [previewData, setPreviewData] = useState([]);
@@ -112,15 +112,11 @@ export default function DataPreview({ selectedFile, selectedSheet }) {
             />
           </div>
           <button
-              className="preview-search-button"
-              onClick={handleSearch}
-              disabled={!searchTerm.trim() || initialLoading}
+            className="preview-search-button"
+            onClick={handleSearch}
+            disabled={!searchTerm.trim()}
             >
-              {initialLoading ? (
-                <CircularProgress color="inherit" size={16} />
-              ) : (
                 <SearchIcon />
-              )}
             </button>
         </div>
       </div>

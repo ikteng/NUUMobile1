@@ -12,50 +12,6 @@
   gap: 5px;
 }
 
-.preview-search-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 0;
-  flex-wrap: nowrap;
-}
-
-.search-input-container {
-  position: relative;
-  flex: 1 1 auto;
-}
-
-.preview-search-bar {
-  flex: 1;
-  padding: 5px 30px 5px 10px;
-  border-radius: 6px;
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.preview-search-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 5px 10px;
-  border-radius: 6px;
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-  border: 1px solid #ccc;
-  background-color: var(--color-primary);
-  color: white;
-  cursor: pointer;
-}
-
-.preview-search-button:hover {
-  background-color: var(--color-primary-hover);
-}
-
-.preview-search-button svg {
-  font-size: 16px;
-}
-
 .download-button {
   display: flex;
   align-items: center;

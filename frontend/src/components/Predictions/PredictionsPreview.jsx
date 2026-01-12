@@ -4,6 +4,7 @@ import DownloadIcon from '@mui/icons-material/Download';
 import SearchIcon from '@mui/icons-material/Search';
 import CircularProgress from '@mui/material/CircularProgress';
 import "./PredictionsPreview.css";
+import "../SearchBar.css";
 
 export default function PredictionsPreview({ selectedFile, selectedSheet }) {
   const [previewData, setPreviewData] = useState([]);
@@ -19,7 +20,7 @@ export default function PredictionsPreview({ selectedFile, selectedSheet }) {
   const loaderRef = useRef(null);
 
   // Fetch Data
-  const fetchData = async (pageNumber = 1) => {
+  const fetchData = async (pageNumber = 1, search = false) => {
     pageNumber === 1 ? setInitialLoading(true) : setLoading(true);
     try {
       const data = await PredictionsApi.getPredictions(
@@ -27,7 +28,7 @@ export default function PredictionsPreview({ selectedFile, selectedSheet }) {
         selectedSheet,
         pageNumber,
         pageSize,
-        searchTerm
+        search ? searchTerm : ""
       );
 
       const preview = data.preview || [];
@@ -45,26 +46,27 @@ export default function PredictionsPreview({ selectedFile, selectedSheet }) {
   };
 
   const handleSearch = () => {
+    if (!searchTerm.trim()) return;
     setPreviewData([]);
     setPage(1);
-    fetchData(1);
+    fetchData(1, true);
   };
 
-  // Reset search when cleared
+  // Reset search when input cleared
   useEffect(() => {
-    if (!searchTerm && previewData.length > 0) {
+    if (!searchTerm) {
       setPreviewData([]);
       setPage(1);
-      fetchData(1);
+      if (selectedFile && selectedSheet) fetchData(1, false);
     }
-  }, [searchTerm]);
+  }, [searchTerm, selectedFile, selectedSheet]);
 
   // Initial load when file/sheet changes
   useEffect(() => {
     if (!selectedFile || !selectedSheet) return;
     setPreviewData([]);
     setPage(1);
-    fetchData(1);
+    fetchData(1, !!searchTerm);
   }, [selectedFile, selectedSheet]);
 
   // Infinite scroll observer
@@ -140,7 +142,6 @@ export default function PredictionsPreview({ selectedFile, selectedSheet }) {
                 <SearchIcon />
               )}
             </button>
-
           </div>
 
           <button className="download-button" onClick={handleDownload} disabled={downloading}>
