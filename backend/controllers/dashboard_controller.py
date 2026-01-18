@@ -2,8 +2,8 @@ import os
 import pandas as pd
 import json 
 from datetime import datetime
-from collections import defaultdict
 from flask import Blueprint, request, jsonify
+import traceback
 
 UPLOAD_FOLDER = os.path.join(os.getcwd(), "uploads")
 
@@ -85,7 +85,6 @@ def get_sheets_data(file, sheet):
         })
 
     except Exception as e:
-        import traceback
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
@@ -102,7 +101,6 @@ def get_all_columns(file, sheet):
         df = pd.read_excel(filepath, sheet_name=sheet)
         return jsonify({"columns": df.columns.tolist()})
     except Exception as e:
-        import traceback
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
@@ -195,6 +193,5 @@ def get_column_data(file, sheet, column):
         return {"frequency": numeric_freq}
 
     except Exception as e:
-        import traceback
         traceback.print_exc()
         return {"error": str(e)}
