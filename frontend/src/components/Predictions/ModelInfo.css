@@ -45,30 +45,30 @@
   text-align: right;
 }
 
-/* Training metrics tiles */
-.metrics-grid {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
+/* Training metrics */
+.model-section .table-scroll {
+    overflow-x: auto;
+    padding-bottom: 0.5rem; 
 }
 
-.metric-tile {
-  flex: 1;
-  min-width: 120px;
-  background: #f6f8ef;
-  border: 1px solid #e2e8c8;
-  padding: 12px;
-  border-radius: 10px;
-  text-align: center;
+.model-section .confusion-matrix, .classification-report {
+    width: max-content; 
+    min-width: 100%; 
+    border-collapse: collapse;
 }
 
-.metric-tile p {
-  margin: 0;
-  font-size: 0.85rem;
-  color: #555;
+.model-section .confusion-matrix th, .confusion-matrix td,
+.classification-report th, .classification-report td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: center;
+    white-space: nowrap;
 }
 
-.metric-tile h3 {
-  margin-top: 4px;
-  font-size: 1.3rem;
+.model-section .confusion-matrix th {
+    background-color: #f0f0f0;
+}
+
+.model-section .classification-report th {
+    background-color: #f9f9f9;
 }

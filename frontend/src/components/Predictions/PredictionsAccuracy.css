@@ -17,13 +17,13 @@
     padding-bottom: 0.5rem; 
 }
 
-.confusion-matrix, .classification-report {
+.predictions-accuracy .confusion-matrix, .classification-report {
     width: max-content; 
     min-width: 100%; 
     border-collapse: collapse;
 }
 
-.confusion-matrix th, .confusion-matrix td,
+.predictions-accuracy .confusion-matrix th, .confusion-matrix td,
 .classification-report th, .classification-report td {
     border: 1px solid #ccc;
     padding: 8px;
@@ -31,11 +31,11 @@
     white-space: nowrap;
 }
 
-.confusion-matrix th {
+.predictions-accuracy .confusion-matrix th {
     background-color: #f0f0f0;
 }
 
-.classification-report th {
+.predictions-accuracy .classification-report th {
     background-color: #f9f9f9;
 }
 

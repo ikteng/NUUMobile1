@@ -42,24 +42,16 @@ export default function ModelInfo() {
         }
     };
 
-    // Helper component to safely render a metric
-    const MetricTile = ({ label, value }) => (
-        <div className="metric-tile">
-            <p>{label}</p>
-            <h3>{typeof value === "number" ? value.toFixed(3) : "N/A"}</h3>
-        </div>
-    );
-
     if (loading) return <p>Loading model info...</p>;
     if (error) return <p className="model-error">{error}</p>;
 
     return (
         <div className="model-info-container">
-            <h3>Model Information</h3>
+            <h2>Model Information</h2>
 
             {/* ---------------- Feature Importance ---------------- */}
             <div className="model-section">
-                <h4>Feature Importance</h4>
+                <h3>Feature Importance</h3>
 
                 {featureImportance.length === 0 ? (
                     <p>No feature importance data available.</p>
@@ -87,29 +79,71 @@ export default function ModelInfo() {
 
             {/* ---------------- Training Metrics ---------------- */}
             <div className="model-section">
-                <h4>Training Performance</h4>
+                <h3>Training Performance</h3>
 
                 {trainingMetrics?.error ? (
                     <p className="model-error">{trainingMetrics.error}</p>
                 ) : trainingMetrics ? (
-                    (() => {
-                        const safeNumber = (num) => (typeof num === "number" ? num : 0);
-                        const metricsToShow = {
-                            roc_auc: safeNumber(trainingMetrics.roc_auc),
-                            accuracy: safeNumber(trainingMetrics.classification_report?.accuracy),
-                            precision: safeNumber(trainingMetrics.classification_report?.["weighted avg"]?.precision),
-                            recall: safeNumber(trainingMetrics.classification_report?.["weighted avg"]?.recall)
-                        };
+                    <>
+                    {/* ROC AUC */}
+                    <p><strong>ROC-AUC Score:</strong> {trainingMetrics.roc_auc.toFixed(3)}</p>
 
-                        return (
-                            <div className="metrics-grid">
-                                <MetricTile label="ROC-AUC" value={metricsToShow.roc_auc} />
-                                <MetricTile label="Accuracy" value={metricsToShow.accuracy} />
-                                <MetricTile label="Precision" value={metricsToShow.precision} />
-                                <MetricTile label="Recall" value={metricsToShow.recall} />
-                            </div>
-                        );
-                    })()
+                    {/* Confusion Matrix */}
+                    <h4>Confusion Matrix</h4>
+                    <div className="table-scroll">
+                        <table className="confusion-matrix">
+                            <thead>
+                            <tr>
+                                <th></th>
+                                <th>Predicted 0</th>
+                                <th>Predicted 1</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <th>Actual 0</th>
+                                <td>{trainingMetrics.confusion_matrix[0][0]}</td>
+                                <td>{trainingMetrics.confusion_matrix[0][1]}</td>
+                            </tr>
+                            <tr>
+                                <th>Actual 1</th>
+                                <td>{trainingMetrics.confusion_matrix[1][0]}</td>
+                                <td>{trainingMetrics.confusion_matrix[1][1]}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* Classification Report */}
+                    <h4>Classification Report</h4>
+                        <div className="table-scroll">
+                            <table className="classification-report">
+
+                                <thead>
+                                <tr>
+                                    <th>Class</th>
+                                    <th>Precision</th>
+                                    <th>Recall</th>
+                                    <th>F1-Score</th>
+                                    <th>Support</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {Object.keys(trainingMetrics.classification_report)
+                                    .filter(k => !["accuracy","macro avg","weighted avg"].includes(k))
+                                    .map(k => (
+                                    <tr key={k}>
+                                        <td>{k}</td>
+                                        <td>{trainingMetrics.classification_report[k].precision.toFixed(3)}</td>
+                                        <td>{trainingMetrics.classification_report[k].recall.toFixed(3)}</td>
+                                        <td>{trainingMetrics.classification_report[k]["f1-score"].toFixed(3)}</td>
+                                        <td>{trainingMetrics.classification_report[k].support}</td>
+                                    </tr>
+                                ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </>
                 ) : (
                     <p>No training metrics available.</p>
                 )}

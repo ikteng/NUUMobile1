@@ -187,19 +187,26 @@ def model_accuracy(file, sheet):
     try:
         df = pd.read_excel(filepath, sheet_name=sheet)
 
-        # Find the churn column
+        # Find churn column
         churn_cols = ['Chrn Flag', 'Churn', 'Churn Flag']
         churn_col_found = next((col for col in churn_cols if col in df.columns), None)
         if churn_col_found is None:
             return jsonify({"message": "No churn column found in this sheet"}), 200
 
-        # Extract target column before preprocessing
-        y_true = df[churn_col_found].astype(int)
+        # Convert churn column to numeric safely
+        y_true_raw = pd.to_numeric(df[churn_col_found], errors="coerce")
 
-        # Preprocess only the features
-        df_features = preprocess_sheet(df)
+        # Keep only rows with valid numeric churn labels
+        valid_mask = y_true_raw.notna()
+        if valid_mask.sum() == 0:
+            return jsonify({"message": "Churn column exists but contains no valid numeric labels"}), 200
 
-        # Transform features
+        # Filter valid rows
+        y_true = y_true_raw[valid_mask].astype(int)
+        df_valid = df.loc[valid_mask].copy()
+
+        # Preprocess features
+        df_features = preprocess_sheet(df_valid)
         X_transformed = preprocessor.transform(df_features)
 
         # Predict
@@ -207,14 +214,32 @@ def model_accuracy(file, sheet):
         y_proba = xgb_model.predict_proba(X_transformed)[:, 1]
 
         # Compute metrics
-        report = classification_report(y_true, y_pred, output_dict=True)
-        conf_matrix = confusion_matrix(y_true, y_pred).tolist()
+        report_raw = classification_report(
+            y_true, y_pred, labels=[0, 1], output_dict=True, zero_division=0
+        )
+        conf_matrix = confusion_matrix(y_true, y_pred, labels=[0, 1]).tolist()
         auc_score = roc_auc_score(y_true, y_proba)
+
+        # Format classification report numbers as strings with 3 decimals
+        report = {}
+        for key, values in report_raw.items():
+            if isinstance(values, dict):
+                report[key] = {
+                    "precision": f"{values['precision']:.3f}",
+                    "recall": f"{values['recall']:.3f}",
+                    "f1-score": f"{values['f1-score']:.3f}",
+                    "support": str(int(values['support']))
+                }
+            else:
+                report[key] = f"{values:.3f}"  # accuracy
+
+        # Format ROC-AUC as string
+        auc_score_str = f"{auc_score:.3f}"
 
         return jsonify({
             "classification_report": report,
             "confusion_matrix": conf_matrix,
-            "roc_auc": auc_score
+            "roc_auc": auc_score_str
         }), 200
 
     except Exception as e:

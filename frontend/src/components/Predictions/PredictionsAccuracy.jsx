@@ -25,8 +25,7 @@ export default function PredictionsAccuracy({ selectedFile, selectedSheet }) {
             } else if (data.error) {
                 setError(data.error);
                 setMetrics(null);
-            } 
-            else {
+            } else {
                 setMetrics(data);
             }
 
@@ -48,7 +47,7 @@ export default function PredictionsAccuracy({ selectedFile, selectedSheet }) {
         <div className="predictions-accuracy">
             <h3>Model Accuracy Metrics</h3>
 
-            <p><strong>ROC-AUC Score:</strong> {roc_auc.toFixed(3)}</p>
+            <p><strong>ROC-AUC Score:</strong> {roc_auc}</p>
 
             <div className="metric-section">
                 <h4>Confusion Matrix</h4>
@@ -64,13 +63,13 @@ export default function PredictionsAccuracy({ selectedFile, selectedSheet }) {
                         <tbody>
                             <tr>
                                 <th>Actual 0</th>
-                                <td>{confusion_matrix[0][0]}</td>
-                                <td>{confusion_matrix[0][1]}</td>
+                                <td>{confusion_matrix[0]?.[0] ?? "N/A"}</td>
+                                <td>{confusion_matrix[0]?.[1] ?? "N/A"}</td>
                             </tr>
                             <tr>
                                 <th>Actual 1</th>
-                                <td>{confusion_matrix[1][0]}</td>
-                                <td>{confusion_matrix[1][1]}</td>
+                                <td>{confusion_matrix[1]?.[0] ?? "N/A"}</td>
+                                <td>{confusion_matrix[1]?.[1] ?? "N/A"}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -96,17 +95,16 @@ export default function PredictionsAccuracy({ selectedFile, selectedSheet }) {
                                 .map((key) => (
                                     <tr key={key}>
                                         <td>{key}</td>
-                                        <td>{classification_report[key].precision.toFixed(3)}</td>
-                                        <td>{classification_report[key].recall.toFixed(3)}</td>
-                                        <td>{classification_report[key]["f1-score"].toFixed(3)}</td>
+                                        <td>{classification_report[key].precision}</td>
+                                        <td>{classification_report[key].recall}</td>
+                                        <td>{classification_report[key]["f1-score"]}</td>
                                         <td>{classification_report[key].support}</td>
                                     </tr>
-                            ))}
+                                ))}
                         </tbody>
                     </table>
                 </div>
             </div>
-
         </div>
     );
 }
