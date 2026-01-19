@@ -252,3 +252,62 @@ def get_correlation_heatmap(file, sheet):
     except Exception as e:
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
+
+@dashboard_bp.route("/get_distribution_vs_churn/<file>/<sheet>/<column>", methods=["GET"])
+def get_distribution_vs_churn(file, sheet, column):
+    filepath = os.path.join(UPLOAD_FOLDER, file)
+    if not os.path.exists(filepath):
+        return jsonify({"error": "File not found"}), 404
+
+    try:
+        df = pd.read_excel(filepath, sheet_name=sheet)
+
+        # Detect churn column
+        churn_cols = ['Chrn Flag', 'Churn', 'Churn Flag']
+        target = next((c for c in churn_cols if c in df.columns), None)
+        if target is None:
+            return jsonify({"message": "No churn column found"}), 200
+
+        # Convert churn to numeric
+        df[target] = pd.to_numeric(df[target], errors="coerce").fillna(0).astype(int)
+
+        if column not in df.columns:
+            return jsonify({"error": f"Column '{column}' not found"}), 404
+
+        # Numeric column -> boxplot
+        if pd.api.types.is_numeric_dtype(df[column]):
+            fig = go.Figure()
+            for val in sorted(df[target].unique()):
+                fig.add_trace(
+                    go.Box(
+                        y=df[df[target] == val][column],
+                        name=f"{column} (Churn={val})",
+                        boxmean='sd'
+                    )
+                )
+            fig.update_layout(title=f"{column} vs Churn", yaxis_title=column, xaxis_title="Churn")
+
+        # Categorical column -> stacked bar
+        else:
+            counts = df.groupby([column, target]).size().unstack(fill_value=0)
+            fig = go.Figure()
+            for churn_val in counts.columns:
+                fig.add_trace(
+                    go.Bar(
+                        x=counts.index.astype(str),
+                        y=counts[churn_val],
+                        name=f"Churn={churn_val}"
+                    )
+                )
+            fig.update_layout(
+                barmode='stack',
+                title=f"{column} vs Churn",
+                xaxis_title=column,
+                yaxis_title="Count"
+            )
+
+        return jsonify({"column": column, "plotly_json": json.loads(fig.to_json())}), 200
+
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500

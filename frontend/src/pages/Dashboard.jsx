@@ -5,6 +5,7 @@ import DataPreview from "../components/Dashboard/DataPreview";
 
 import FrequencyChart from "../components/Dashboard/FrequencyChart";
 import CorrelationHeatmap from "../components/Dashboard/CorrelationHeatmap";
+import DistributionVsChurn from "../components/Dashboard/DistributionVsChurn";
 
 import "./Dashboard.css";
 
@@ -16,6 +17,7 @@ export default function Dashboard() {
     const [fileSheets, setFileSheets] = useState({});
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
     const [activeTab, setActiveTab] = useState("chart");
+    const [hasChurn, setHasChurn] = useState(false);
 
     useEffect(() => {
         document.title = "Dashboard - Churn Predictor";
@@ -57,6 +59,19 @@ export default function Dashboard() {
         setActiveTab("chart");
     };
 
+    useEffect(() => {
+        if (!selectedFile || !selectedSheet) return;
+
+        DashboardApi.getAllColumns(selectedFile, selectedSheet)
+            .then((cols) => {
+            // Check if any churn column exists
+            const churnCols = ['Chrn Flag', 'Churn', 'Churn Flag'];
+            const found = cols.some(col => churnCols.includes(col));
+            setHasChurn(found);
+            })
+            .catch(() => setHasChurn(false));
+    }, [selectedFile, selectedSheet]);
+
     const renderTabContent = () => {
         switch (activeTab) {
             case "chart":
@@ -67,10 +82,18 @@ export default function Dashboard() {
                             selectedSheet={selectedSheet}
                         />
 
+                        {hasChurn && (
+                            <DistributionVsChurn
+                                selectedFile={selectedFile}
+                                selectedSheet={selectedSheet}
+                            />
+                        )}
+
                         <CorrelationHeatmap
                             selectedFile={selectedFile}
                             selectedSheet={selectedSheet}
                         />
+
                     </>
                 );
             case "preview":

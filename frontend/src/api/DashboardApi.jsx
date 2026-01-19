@@ -60,5 +60,13 @@ export const DashboardApi = {
         );
         return response.data;
     },
+
+    getDistributionVsChurn: async (file, sheet, column) => {
+        const response = await fetch(
+            `${API_URL}/get_distribution_vs_churn/${file}/${sheet}/${column}`
+        );
+        return response.json();
+    },
+
         
 }
