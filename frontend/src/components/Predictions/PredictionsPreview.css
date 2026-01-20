@@ -1,0 +1,59 @@
+.predictions-preview-container {
+  padding: 16px;
+  border: 1px solid #ddd;
+  background-color: #fff;
+  border-radius: 15px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.predictions-preview-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.predictions-preview-header-right {
+  display: flex;
+  gap: 5px;
+}
+
+.download-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: none;
+  background-color: var(--color-primary);
+  color: white;
+  cursor: pointer;
+}
+
+.download-button:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.download-button svg {
+  font-size: 16px;
+}
+
+.predictions-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.predictions-table th,
+.predictions-table td {
+  border: 1px solid #ddd;
+  padding: 6px 10px;
+  text-align: center;
+}
+
+.predictions-table th {
+  background-color: var(--color-primary);
+  color: var(--color-dark-gray);
+}

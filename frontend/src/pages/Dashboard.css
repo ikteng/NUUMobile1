@@ -1,0 +1,68 @@
+.dashboard-layout {
+  display: flex;
+  height: calc(100vh - 70px);
+  background-color: #f7f8fa;
+  overflow: hidden;
+}
+
+.dashboard-content {
+  flex: 1;
+  padding: 2rem;
+  min-height: 0; 
+  min-width: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-titlebar {
+  margin-bottom: 8px;
+}
+
+.dashboard-titlebar h2 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 0;
+  color: #333;
+}
+
+.dashboard-titlebar .sheet-name {
+  font-weight: 400;
+  color: #666;
+}
+
+.dashboard-content .tabs-container {
+  display: flex;
+  padding-bottom: 5px;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.dashboard-content .tab-button {
+  background-color: #f1f1f1;
+  border: none;
+  border-radius: 15px 15px 0 0;
+  padding: 10px 20px;
+  margin-right: 5px;
+  cursor: pointer;
+  font-size: 15px;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.dashboard-content .tab-button:hover {
+  background-color: #ddd;
+}
+
+.dashboard-content .tab-button.active {
+  background-color: #a3ba20;
+  color: white;
+}
+
+.dashboard-content .tab-content {
+  padding: 20px;
+  border-radius: 0 20px 20px 20px;
+  background-color: #f1f1f1;
+  flex: 1;
+  overflow: auto;
+}

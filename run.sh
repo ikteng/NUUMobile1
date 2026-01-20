@@ -57,7 +57,7 @@ fi
 echo "Fetch and build docker image"
 docker rm -f ollama
 docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
-docker exec -it ollama ollama pull llama3.2:1b
+docker exec -it ollama ollama pull llama3.2:c
 
 # Run the backend app.py in the background
 echo "Running backend/app.py..."
@@ -68,7 +68,7 @@ echo "Running React frontend..."
 cd frontend || { echo "Frontend directory not found!"; exit 1; }
 # Remember to install Node.js before this step!
 npm install  # Install frontend dependencies if not already done
-npm start &
+npm run dev &
 
 # Wait for both processes to finish
 wait
