@@ -37,6 +37,18 @@ export const DashboardApi = {
         return response.data;
     },
 
+    askAiAboutSheet: async (file, sheet, question) => {
+        const response = await fetch(
+            `${API_URL}/ask_ai_about_sheet/${file}/${sheet}`,
+            {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ question })
+            }
+        );
+        return response.json();
+    },
+
     // ----------------------------
     // Columns
     // ----------------------------

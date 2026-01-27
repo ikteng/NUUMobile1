@@ -3,6 +3,7 @@ import { DashboardApi } from "../api/DashboardApi";
 import FileSidebar from "../components/Dashboard/FileSidebar";
 import DataPreview from "../components/Dashboard/DataPreview";
 
+import AiChat from "../components/Dashboard/AiChat";
 import FrequencyChart from "../components/Dashboard/FrequencyChart";
 import CorrelationHeatmap from "../components/Dashboard/CorrelationHeatmap";
 import DistributionVsChurn from "../components/Dashboard/DistributionVsChurn";
@@ -173,6 +174,12 @@ export default function Dashboard() {
                     </>
                 )}
             </div>
+
+            <AiChat 
+                selectedFile={selectedFile}
+                selectedSheet={selectedSheet}
+            />
+
         </div>
     );
 }

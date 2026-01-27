@@ -14,3 +14,6 @@ imblearn
 xlrd
 ipykernel
 openpyxl
+requests
+faiss-cpu
+sentence_transformers

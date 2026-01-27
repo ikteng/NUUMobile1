@@ -1,0 +1,119 @@
+.ai-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  transition: transform 0.25s ease;
+}
+
+.ai-fab svg {
+  font-size: 26px;
+}
+
+.ai-chat-header span {
+  cursor: pointer;
+}
+
+.ai-chat-window {
+  position: fixed;
+  bottom: 90px;
+  right: 25px;
+  width: 35vw;
+  height: 45vh;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  display: flex;
+  flex-direction: column;
+  z-index: 999;
+  overflow: hidden;
+
+  transform: translateY(20px) scale(0.95);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.25s ease-in-out;
+}
+
+/* Open state */
+.ai-chat-window.open {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Closed state */
+.ai-chat-window.closed {
+  transform: translateY(20px) scale(0.95);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ai-chat-header {
+  background: var(--color-primary);
+  color: white;
+  padding: 10px;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+.ai-chat-messages {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+  font-size: 14px;
+  display: flex; 
+  flex-direction: column;
+}
+
+.msg {
+  margin-bottom: 8px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  max-width: 80%;
+}
+
+.msg.user {
+  background: #e3f2fd;
+  align-self: flex-end;
+}
+
+.msg.assistant {
+  background: #f1f1f1;
+}
+
+.ai-chat-input {
+  display: flex;
+  border-top: 1px solid #ddd;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+.ai-chat-input input {
+  flex: 1;
+  border: none;
+  padding: 8px;
+  border-bottom-left-radius: 12px;
+}
+
+.ai-chat-input button {
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-bottom-right-radius: 12px;
+}
